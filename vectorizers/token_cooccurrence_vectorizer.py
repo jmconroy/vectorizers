@@ -11,7 +11,7 @@ from sklearn.preprocessing import normalize
 from sklearn.utils.extmath import randomized_svd, svd_flip
 from collections.abc import Iterable
 from scipy.sparse.linalg import svds
-from DS_NMF import DS_NMF
+from .DS_NMF import DS_NMF
 
 import vectorizers.distances as distances
 

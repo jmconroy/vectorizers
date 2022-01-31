@@ -2,7 +2,7 @@ from os import scandir
 import numpy as np
 from sklearn.decomposition import NMF
 from scipy.sparse import spdiags
-from utils_Zhu_Ghodsi import ZG_number_of_topics
+from .utils_Zhu_Ghodsi import ZG_number_of_topics
 
 class DS_NMF(NMF):
     """Class to allow diagonal scaling of NMF
