@@ -11,6 +11,7 @@ from sklearn.preprocessing import normalize
 from sklearn.utils.extmath import randomized_svd, svd_flip
 from collections.abc import Iterable
 from scipy.sparse.linalg import svds
+from DS_NMF import DS_NMF
 
 import vectorizers.distances as distances
 
@@ -1775,6 +1776,9 @@ class TokenCooccurrenceVectorizer(BaseEstimator, TransformerMixin):
         power=0.25,
     ):
         check_is_fitted(self, ["column_label_dictionary_"])
+        if algorithm == "DSNMF":
+            row_normalize = None
+            scale_type = row_norm
         if row_norm == "bayesian":
             row_normalize = dirichlet_process_normalize
         else:
@@ -1798,10 +1802,16 @@ class TokenCooccurrenceVectorizer(BaseEstimator, TransformerMixin):
             u, s, v = randomized_svd(
                 self.reduced_matrix_, n_components=dimension, n_iter=n_iter
             )
+        elif algorithm == "DSNMF":
+            model_DS = DS_NMF(n_components=dimension, scale_type=scale_type, init='random', random_state=42)
+            u = model_DS.fit_transform(X)
+            v = model_DS.components_
         else:
             raise ValueError("algorithm should be one of 'arpack' or 'randomized'")
-
-        u, v = svd_flip(u, v)
-        self.reduced_matrix_ = u * np.power(s, 0.5)
+        if algorithm != "DSNMF":
+            u, v = svd_flip(u, v)
+            self.reduced_matrix_ = u * np.power(s, 0.5)
+        else:
+            self.reduced_matrix_ = u
 
         return self.reduced_matrix_
