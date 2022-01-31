@@ -1804,7 +1804,7 @@ class TokenCooccurrenceVectorizer(BaseEstimator, TransformerMixin):
             )
         elif algorithm == "DSNMF":
             model_DS = DS_NMF(n_components=dimension, scale_type=scale_type, init='random', random_state=42)
-            u = model_DS.fit_transform(X)
+            u = model_DS.fit_transform(self.reduced_matrix_)
             v = model_DS.components_
         else:
             raise ValueError("algorithm should be one of 'arpack' or 'randomized'")
