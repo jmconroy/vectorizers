@@ -13,7 +13,7 @@ from sklearn.decomposition import TruncatedSVD
 from  mvlearn.embed.utils import select_dimension
 
 
-def ZG_number_of_topics(doc_term, elbow_index=1, n_topics_upper_bound = 100):
+def ZG_number_of_topics(doc_term, elbow_index=1, n_topics_upper_bound = 1000):
     """
     Determines an appropriate number of topics to use using 
     Zho and Ghodsi as implemented in graspologic's select_dimension 

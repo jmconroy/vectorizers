@@ -217,7 +217,7 @@ class DS_NMF(NMF):
         if self.scale_type: 
             X = self.scale_counts(X)
         if self.n_components<=0:
-            self.n_components=ZG_number_of_topics(X,elbow_index=-self.n_components,n_topics_upper_bound=max(X.shape))
+            self.n_components=ZG_number_of_topics(X,elbow_index=-self.n_components)
         W = super().fit_transform(X,y,W,H)
         # unwind the diagonal scaling if done
         if self.scale_type:
