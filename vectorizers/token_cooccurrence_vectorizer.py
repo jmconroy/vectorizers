@@ -12,6 +12,7 @@ from sklearn.utils.extmath import randomized_svd, svd_flip
 from collections.abc import Iterable
 from scipy.sparse.linalg import svds
 from .DS_NMF import DS_NMF
+from .transformers.info_weight import InformationWeightTransformer
 
 import vectorizers.distances as distances
 
@@ -1779,23 +1780,21 @@ class TokenCooccurrenceVectorizer(BaseEstimator, TransformerMixin):
         if algorithm == "DSNMF":
             row_normalize = None
             scale_type = row_norm
-        if row_norm == "bayesian":
-            row_normalize = dirichlet_process_normalize
         else:
-            row_normalize = normalize
+            if row_norm == "bayesian":
+                row_normalize = dirichlet_process_normalize
+            else:
+                row_normalize = normalize
 
-        if self.n_iter < 1:
-            self.reduced_matrix_ = self._normalize(
-                self.cooccurrences_, axis=0, norm="l1"
-            )
-            self.reduced_matrix_ = row_normalize(
-                self.reduced_matrix_, axis=1, norm="l1"
-            )
-        else:
+            if self.n_iter < 1:
+                self.reduced_matrix_ = self._normalize(
+                    self.cooccurrences_, axis=0, norm="l1"
+                )
+                self.reduced_matrix_ = row_normalize(
+                    self.reduced_matrix_, axis=1, norm="l1"
+                )
             self.reduced_matrix_ = row_normalize(self.cooccurrences_, axis=1, norm="l1")
-
-        self.reduced_matrix_.data = np.power(self.reduced_matrix_.data, power)
-
+            self.reduced_matrix_.data = np.power(self.reduced_matrix_.data, power)
         if algorithm == "arpack":
             u, s, v = svds(self.reduced_matrix_, k=dimension)
         elif algorithm == "randomized":
@@ -1804,6 +1803,10 @@ class TokenCooccurrenceVectorizer(BaseEstimator, TransformerMixin):
             )
         elif algorithm == "DSNMF":
             model_DS = DS_NMF(n_components=dimension, scale_type=scale_type, init='random', random_state=42)
+            info_weight = InformationWeightTransformer()
+            info_weight.fit(self.cooccurrences_)
+            information_weights = info_weight.information_weights_
+            self.reduced_matrix_ = info_weight.transform(self.cooccurrences_)
             u = model_DS.fit_transform(self.reduced_matrix_)
             v = model_DS.components_
         else:
